@@ -9,21 +9,34 @@ const dependencyKeys = [
 const apiUrlBase = "https://registry.npmjs.org/";
 const npmUrlBase = "https://www.npmjs.com/package/";
 
-// create a set of all dependencies used by the project
-const textarea = document.querySelector("#read-only-cursor-text-area");
-const code_json = JSON.parse(textarea.value);
 const dependencies = {};
-dependencyKeys.forEach((key) => {
-  if (code_json[key]) {
-    Object.entries(code_json[key]).forEach((item) => {
-      const [name, version] = item;
-      if (version.startsWith("git") || version.startsWith("workspace")) {
-        return;
-      }
-      dependencies[name] = version;
-    });
+
+//window.addEventListener(onload, readDependencies());
+
+
+function readDependencies() {
+  const textarea = document.querySelector("#read-only-cursor-text-area");
+  if (!textarea) {
+    console.error("no tcextarea yet, need to try later");
+    return;
   }
-});
+
+  const code_json = JSON.parse(textarea.value);
+
+  dependencyKeys.forEach((key) => {
+    if (code_json[key]) {
+      Object.entries(code_json[key]).forEach((item) => {
+        const [name, version] = item;
+        if (version.startsWith("git") || version.startsWith("workspace")) {
+          return;
+        }
+        dependencies[name] = version;
+      });
+    }
+  });
+}
+
+readDependencies();
 
 // observes a div in the symbols pane (as narrow as possible) for changes
 const symbolPaneContentObserver = new MutationObserver((mutations) => {
@@ -56,6 +69,10 @@ const symbolPaneContentObserver = new MutationObserver((mutations) => {
 const symbolsPaneExistsObserver = new MutationObserver((mutations) => {
   for (const mutation of mutations) {
     if (mutation.type === "childList") {
+      if (!dependencies.length) {
+        readDependencies();
+      }
+
       const symbolsPane = document.querySelector("#symbols-pane");
       if (symbolsPane) {
         const div = symbolsPane.querySelector("div[title]");
@@ -65,7 +82,11 @@ const symbolsPaneExistsObserver = new MutationObserver((mutations) => {
 
         var npmDiv = symbolsPane.querySelector("#ext-symbolpane-npm");
 
-        if (!dependencies[name] || dependencies[name].startsWith("git") || dependencies[name].startsWith("workspace")) {
+        if (
+          !dependencies[name] ||
+          dependencies[name].startsWith("git") ||
+          dependencies[name].startsWith("workspace")
+        ) {
           if (npmDiv) {
             npmDiv.remove();
           }
@@ -208,9 +229,14 @@ function updateNpmDiv(div, name) {
 
 function fetchDetails(name, uiElement) {
   const fetchUrl = apiUrlBase + name;
-  fetch(fetchUrl)
-    .then((response) => response.json())
-    .then((json) => {
+
+  chrome.runtime.sendMessage(
+    { type: "package_info", url: fetchUrl },
+    (json) => {
+      if (!json) {
+        console.error("Did not get json data from background / service worker.")
+        return
+      }
       if (json["description"]) {
         uiElement.innerText = json["description"];
       } else {
@@ -242,7 +268,7 @@ function fetchDetails(name, uiElement) {
         "#ext-symbolpane-npm-link-github"
       );
       if (linkGitHub) {
-        if (
+        if (  
           json["repository"] &&
           json["repository"]["url"].includes("github")
         ) {
@@ -254,5 +280,6 @@ function fetchDetails(name, uiElement) {
           linkGitHub.setAttribute("hidden", "true");
         }
       }
-    });
+    }
+  );
 }
