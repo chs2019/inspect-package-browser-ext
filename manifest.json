@@ -35,8 +35,7 @@
     }
   ],
   "background": {
-    "service_worker": "scripts/service-worker.js",
-    "type": "module"
+    "scripts": ["scripts/service-worker.js"]
   },
   "host_permissions": ["https://registry.npmjs.org/*"]
 }

@@ -190,7 +190,7 @@ function createNpmDiv(name) {
     "style",
     "font-size: 10px; color=var(--fgColor-muted); text-decoration: none; padding: 8px 0;"
   );
-  linkToExt.innerText = "Extension made by chs";
+  linkToExt.innerText = `An extension made by chs2019 ©2024`;
   div.appendChild(linkToExt);
 
   return div;
