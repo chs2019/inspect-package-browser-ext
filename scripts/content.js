@@ -11,13 +11,10 @@ const npmUrlBase = "https://www.npmjs.com/package/";
 
 const dependencies = {};
 
-//window.addEventListener(onload, readDependencies());
-
-
 function readDependencies() {
   const textarea = document.querySelector("#read-only-cursor-text-area");
   if (!textarea) {
-    console.error("no tcextarea yet, need to try later");
+    //console.error("no textarea yet, will try again later");
     return;
   }
 
@@ -68,8 +65,9 @@ const symbolPaneContentObserver = new MutationObserver((mutations) => {
 
 const symbolsPaneExistsObserver = new MutationObserver((mutations) => {
   for (const mutation of mutations) {
-    if (mutation.type === "childList") {
-      if (!dependencies.length) {
+    if (mutation.type == "childList") {
+      
+      if (!Object.keys(dependencies).length) {
         readDependencies();
       }
 
@@ -104,11 +102,8 @@ const symbolsPaneExistsObserver = new MutationObserver((mutations) => {
   }
 });
 
-const symbolsPaneTargetNode = document.querySelector(
-  '[data-target="react-app.reactRoot"]'
-);
 const config = { attributes: true, childList: true, subtree: true };
-symbolsPaneExistsObserver.observe(symbolsPaneTargetNode, config);
+symbolsPaneExistsObserver.observe(document.documentElement, config);
 
 function createNpmDiv(name) {
   const div = document.createElement("div");
@@ -234,8 +229,10 @@ function fetchDetails(name, uiElement) {
     { type: "package_info", url: fetchUrl },
     (json) => {
       if (!json) {
-        console.error("Did not get json data from background / service worker.")
-        return
+        console.error(
+          "Did not get json data from background / service worker."
+        );
+        return;
       }
       if (json["description"]) {
         uiElement.innerText = json["description"];
@@ -268,12 +265,12 @@ function fetchDetails(name, uiElement) {
         "#ext-symbolpane-npm-link-github"
       );
       if (linkGitHub) {
-        if (  
+        if (
           json["repository"] &&
           json["repository"]["url"].includes("github")
         ) {
-          const githubUrl = new URL(json["repository"]["url"]);
-          githubUrl.protocol = "https:";
+          const repoUrl = new URL(json["repository"]["url"]);
+          const githubUrl = new URL("https:" + repoUrl.pathname);
           linkGitHub.setAttribute("href", githubUrl.href);
           linkGitHub.removeAttribute("hidden");
         } else {
