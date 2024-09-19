@@ -122,7 +122,7 @@ function createNpmDiv(name) {
   const desc_div = document.createElement("div");
   desc_div.setAttribute("id", "ext-symbolpane-npm-description");
   desc_div.setAttribute("style", "font-size: 12px; padding: 8px 0;");
-  desc_div.innerText = "Loading Description...";
+  desc_div.innerText = "Loading description...";
   div.appendChild(desc_div);
 
   const versionDiv = document.createElement("div");
