@@ -47,4 +47,4 @@ Since fetch from the npm API directly out of the content script is not browser i
 
 ## Disclaimer
 
-My objective was to learn about developing browser extensions and at the same time produce something useful. Please keep this in mind should you be using this extension.
+My objective was to learn about developing browser extensions and at the same time produce something useful. Please keep this in mind should you be using this extension. If you do, I'd love to get some feedback.
