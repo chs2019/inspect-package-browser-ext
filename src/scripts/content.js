@@ -11,6 +11,131 @@ const npmUrlBase = "https://www.npmjs.com/package/";
 
 const dependencies = {};
 
+/*
+GitHub has already a symbol browsing feature. We piggy back and add another div to the symbol pane
+*/
+let symbolsPaneSaved = null;
+
+/*
+ * Two observers are core
+ */
+
+/* 
+second observer:
+once a symbol pane has been opened, this observer watches out for changes in the symbols pane, 
+for example the user clicking on another symbol without closing the symbol pane
+*/
+const symbolPaneContentObserver = new MutationObserver((mutations) => {
+  for (const mutation of mutations) {
+    if (mutation.type === "childList") {
+      if (!symbolsPaneSaved) {
+        throw new Error(
+          "symbolPaneContentObserver: nosymbolsPaneSaved - should not happen"
+        );
+      }
+
+      symbolPaneContentObserver.disconnect();
+
+      const name = getSymbolName(symbolsPaneSaved);
+
+      const npmDiv = symbolsPaneSaved.querySelector("#ext-symbolpane-npm");
+      if (npmDiv && npmDiv.getAttribute("title") == name) {
+        // nothing has changed, nothing to do
+        return;
+      }
+
+      symbolPaneContentObserver.disconnect();
+      if (
+        dependencies[name] &&
+        !dependencies[name].startsWith("git") &&
+        !dependencies[name].startsWith("workspace")
+      ) {
+        if (npmDiv) {
+          updateNpmDiv(npmDiv, name);
+        } else {
+          const npmDiv = createNpmDiv(name);
+          symbolsPaneSaved.appendChild(npmDiv);
+        }
+      } else {
+        if (npmDiv) {
+          symbolsPaneSaved.removeChild(npmDiv);
+        }
+      }
+      const div = symbolsPaneSaved.querySelector("div[title]");
+      symbolPaneContentObserver.observe(div, config);
+    }
+  }
+});
+
+/* 
+first observer: 
+we want to piggyback on the DOM node #symbols-pane. 
+thereforee, after each DOM mutation we check as quick a possible if the symbol pane node has 
+appeared or disappeared
+*/
+const symbolsPaneExistsObserver = new MutationObserver((mutations) => {
+  for (const mutation of mutations) {
+    if (mutation.type == "childList") {
+      const symbolsPane = document.querySelector("#symbols-pane");
+
+      if (symbolsPane) {
+        if (!symbolsPaneSaved) {
+          // change from invisible to visible
+          // console.log("symbols pane changed to VISIBLE", mutation);
+          symbolsPaneSaved = symbolsPane;
+
+          // check whether we are looking at a file taht interests us
+          if (document.baseURI.endsWith("package.json")) {
+            // always read deps when symbol pane becomes visible as we might have stale data
+            readDependencies();
+
+            // get the symbol name
+            const name = getSymbolName(symbolsPaneSaved);
+
+            // check if name may refer to a dependency and has an npm version
+            if (
+              dependencies[name] &&
+              !dependencies[name].startsWith("git") &&
+              !dependencies[name].startsWith("workspace")
+            ) {
+              if (symbolsPane.querySelector("#ext-symbolpane-npm")) {
+                throw new Error("didnt expect #ext-symbolpane-npm here");
+              }
+              // display our extension div
+              const npmDiv = createNpmDiv(name);
+              symbolsPane.appendChild(npmDiv);
+            }
+            // start observing mutations of the symbol pane content, to be able to update our content when necessary
+            // select a target as specific as possible to avoid unnecessary observer hits
+            const div = symbolsPane.querySelector("div[title]");
+            symbolPaneContentObserver.observe(div, config);
+          }
+        }
+      } else {
+        if (symbolsPaneSaved) {
+          // change from visible to invisible
+          // console.log("symbols pane DISAPPEARED", mutation);
+          symbolsPaneSaved = null;
+
+          // disconnect content observer
+          symbolPaneContentObserver.disconnect();
+        }
+      }
+    }
+  }
+});
+
+const config = { attributes: true, childList: true, subtree: true };
+symbolsPaneExistsObserver.observe(document.querySelector("body"), config);
+
+/*
+ * Helpers
+ */
+
+/*
+collect all depemdencies from a package.json file. used to compare symbol names against. 
+if the symbol name is 
+*/
 function readDependencies() {
   const textarea = document.querySelector("#read-only-cursor-text-area");
   if (!textarea) {
@@ -33,90 +158,13 @@ function readDependencies() {
   });
 }
 
-readDependencies();
-
-// observes a div in the symbols pane (as narrow as possible) for changes
-const symbolPaneContentObserver = new MutationObserver((mutations) => {
-  for (const mutation of mutations) {
-    if (mutation.type === "childList") {
-      const symbolsPane = document.querySelector("#symbols-pane");
-      symbolPaneContentObserver.disconnect();
-      if (!symbolsPane) {
-        return;
-      }
-
-      const div = symbolsPane.querySelector("div[title]");
-      const name = div.innerText
-        .replaceAll('"', "")
-        .replace(/[^\x00-\x7F]/g, "");
-
-      const npmDiv = symbolsPane.querySelector("#ext-symbolpane-npm");
-      if (npmDiv) {
-        if (name != npmDiv.getAttribute("title")) {
-          updateNpmDiv(npmDiv, name);
-        }
-      } else {
-        const npmDiv = createNpmDiv(name);
-        symbolsPane.appendChild(npmDiv);
-      }
-    }
-  }
-});
-
-const symbolsPaneExistsObserver = new MutationObserver((mutations) => {
-  for (const mutation of mutations) {
-    if (mutation.type == "childList") {
-      
-      if (!Object.keys(dependencies).length) {
-        readDependencies();
-      }
-
-      const symbolsPane = document.querySelector("#symbols-pane");
-      if (symbolsPane) {
-        const div = symbolsPane.querySelector("div[title]");
-        const name = div.innerText
-          .replaceAll('"', "")
-          .replace(/[^\x00-\x7F]/g, "");
-
-        var npmDiv = symbolsPane.querySelector("#ext-symbolpane-npm");
-
-        if (
-          !dependencies[name] ||
-          dependencies[name].startsWith("git") ||
-          dependencies[name].startsWith("workspace")
-        ) {
-          if (npmDiv) {
-            npmDiv.remove();
-          }
-        } else {
-          if (!npmDiv) {
-            npmDiv = createNpmDiv(name);
-            symbolsPane.appendChild(npmDiv);
-          }
-        }
-        symbolPaneContentObserver.observe(div, config);
-      } else {
-        symbolPaneContentObserver.disconnect();
-      }
-    }
-  }
-});
-
-const config = { attributes: true, childList: true, subtree: true };
-symbolsPaneExistsObserver.observe(document.documentElement, config);
+function getSymbolName(symbolsPane) {
+  const div = symbolsPane.querySelector("div[title]");
+  const name = div.innerText.replaceAll('"', "").replace(/[^\x00-\x7F]/g, "");
+  return name;
+}
 
 function createNpmDiv(name) {
-  const head = document.querySelector("head");
-  if (head) {
-    // <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
-    const styleLink = document.createElement('link');
-    styleLink.setAttribute("rel", "styöesheet");
-    styleLink.setAttribute("href", "https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" );
-    head.appendChild(styleLink);
-  } else {
-    console.error("did not find <head>")
-  }
-
   const div = document.createElement("div");
   div.setAttribute("id", "ext-symbolpane-npm");
   div.setAttribute("name", name);
@@ -197,7 +245,10 @@ function createNpmDiv(name) {
   fetchDetails(name, desc_div);
 
   const linkToExt = document.createElement("a");
-  linkToExt.setAttribute("href", "https://github.com/chs2019/inspect-package-browser-ext");
+  linkToExt.setAttribute(
+    "href",
+    "https://github.com/chs2019/inspect-package-browser-ext"
+  );
   linkToExt.setAttribute(
     "style",
     "font-size: 10px; color=var(--fgColor-muted); text-decoration: none; padding: 8px 0;"
@@ -234,6 +285,12 @@ function updateNpmDiv(div, name) {
   fetchDetails(name, desc_div);
 }
 
+/*
+because of content origin policy we cannot contact the npm api server directly from the content
+script. Therefore we need to let a service worker do this task
+
+TODO: separate fetching from displaying the data (do one thing only)
+*/
 function fetchDetails(name, uiElement) {
   const fetchUrl = apiUrlBase + name;
 
@@ -246,6 +303,7 @@ function fetchDetails(name, uiElement) {
         );
         return;
       }
+
       if (json["description"]) {
         uiElement.innerText = json["description"];
       } else {
