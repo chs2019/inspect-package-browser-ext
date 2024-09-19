@@ -1,5 +1,6 @@
 * {
   box-sizing: border-box;
+  font-family: sans-serif;
 }
 
 body {
@@ -9,15 +10,20 @@ body {
 
 h1 {
   color: #202124;
-  font-size: 16px;
+  font-size: 18px;
 }
 
 h2 {
   color: #202124;
-  font-size: 12px;
+  font-size: 16px;
 }
 
-.credits {
+.credits, .credits > a {
   text-align: end;
-  color: #555;
+  font-size: 12px;
+  color: grey;
+}
+
+ul {
+  list-style: none;
 }
