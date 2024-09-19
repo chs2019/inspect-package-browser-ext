@@ -29,8 +29,7 @@
     {
       "js": ["scripts/content.js"],
       "matches": [
-        "https://www.github.com/*/package.json",
-        "https://github.com/*/package.json"
+        "*://*.github.com/*"
       ]
     }
   ],
