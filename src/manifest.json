@@ -1,22 +1,22 @@
 {
   "manifest_version": 3,
-  "name": "NPM Packages",
+  "name": "Inspect NPM Deps",
   "description": "Inspect dependencies in package.json on GitHub.",
   "version": "1.0",
   "icons": {
-    "16": "images/icon-16.png",
-    "24": "images/icon-24.png",
-    "32": "images/icon-32.png",
-    "48": "images/icon-48.png",
-    "96": "images/icon-96.png",
-    "128": "images/icon-128.png"
+    "16": "images/i-icon-16.png",
+    "24": "images/i-icon-24.png",
+    "32": "images/i-icon-32.png",
+    "48": "images/i-icon-48.png",
+    "96": "images/i-icon-96.png",
+    "128": "images/i-icon-128.png"
   },
   "web_accessible_resources": [
     {
       "resources": [
-        "images/icon-24.png",
-        "images/home.png",
-        "images/brand-github.png"
+        "images/n-icon-24.png",
+        "images/home-bg.png",
+        "images/brand-github-bg.png"
       ],
       "extension_ids": ["*"],
       "matches": ["*://*/*"]
@@ -35,8 +35,6 @@
     }
   ],
   "background": {
-    "service_worker": "scripts/service-worker.js",
-    "type": "module"
   },
   "host_permissions": ["https://registry.npmjs.org/*"]
 }

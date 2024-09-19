@@ -24,6 +24,6 @@ h2 {
   color: grey;
 }
 
-ul {
-  list-style: none;
+li.done::before {
+  content: " ✅";
 }

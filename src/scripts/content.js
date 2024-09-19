@@ -106,6 +106,17 @@ const config = { attributes: true, childList: true, subtree: true };
 symbolsPaneExistsObserver.observe(document.documentElement, config);
 
 function createNpmDiv(name) {
+  const head = document.querySelector("head");
+  if (head) {
+    // <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+    const styleLink = document.createElement('link');
+    styleLink.setAttribute("rel", "styöesheet");
+    styleLink.setAttribute("href", "https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" );
+    head.appendChild(styleLink);
+  } else {
+    console.error("did not find <head>")
+  }
+
   const div = document.createElement("div");
   div.setAttribute("id", "ext-symbolpane-npm");
   div.setAttribute("name", name);
@@ -146,7 +157,7 @@ function createNpmDiv(name) {
   linkNpm.setAttribute("target", "_blank");
 
   const npmIcon = document.createElement("img");
-  const npmIconUrl = chrome.runtime.getURL("images/icon-24.png");
+  const npmIconUrl = chrome.runtime.getURL("images/n-icon-24.png");
   npmIcon.setAttribute("src", npmIconUrl);
   npmIcon.setAttribute("alt", "The npm icon");
   linkNpm.appendChild(npmIcon);
@@ -157,8 +168,9 @@ function createNpmDiv(name) {
   linkHome.setAttribute("href", urlHome);
   linkHome.setAttribute("id", "ext-symbolpane-npm-link-home");
   linkHome.setAttribute("target", "_blank");
+
   const homeIcon = document.createElement("img");
-  const homeIconUrl = chrome.runtime.getURL("images/home.png");
+  const homeIconUrl = chrome.runtime.getURL("images/home-bg.png");
   homeIcon.setAttribute("src", homeIconUrl);
   homeIcon.setAttribute("alt", "Home icon");
   homeIcon.setAttribute("style", "padding-left: 0.5rem;");
@@ -173,7 +185,7 @@ function createNpmDiv(name) {
   linkGitHub.setAttribute("id", "ext-symbolpane-npm-link-github");
   linkGitHub.setAttribute("target", "_blank");
   const githubIcon = document.createElement("img");
-  const githubIconUrl = chrome.runtime.getURL("images/brand-github.png");
+  const githubIconUrl = chrome.runtime.getURL("images/brand-github-bg.png");
   githubIcon.setAttribute("src", githubIconUrl);
   githubIcon.setAttribute("alt", "github icon");
   githubIcon.setAttribute("style", "padding-left: 0.5rem;");

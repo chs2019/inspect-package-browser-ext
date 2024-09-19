@@ -1,0 +1,33 @@
+{
+  "name": "inspect-package-browser-ext",
+  "version": "1.0.0",
+  "description": "A browser extension for github.com making it easier to understand dependencies in package.json",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chs2019/inspect-package-browser-ext.git"
+  },
+  "keywords": [
+    "browser",
+    "extension",
+    "firefox",
+    "chrome",
+    "npm",
+    "github",
+    "dependency",
+    "package.json",
+    "inspection",
+    "developer",
+    "utility",
+    "tool"
+  ],
+  "author": "Christian Schmidt <chszuerich@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/chs2019/inspect-package-browser-ext/issues"
+  },
+  "homepage": "https://github.com/chs2019/inspect-package-browser-ext#readme"
+}
