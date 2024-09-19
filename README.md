@@ -31,7 +31,7 @@ If the symbol lexically matches with a dependency, and the dependency is not som
 
 Since fetch from the npm API directly out of the content script is not browser indepenent, a **ServiceWorker / background script** is used.
 
-### Discarded attempts
+### Discarded ideas
 
 - making the link in the source code itself interactive (eg. hover/click) interfered with the original GitHub functionality. However I learned how `<textarea>` elements and other `<div>`s are stacked (some visible, some not) to create an editor-like experience.
 - appending links at the end of the line didn't look good
