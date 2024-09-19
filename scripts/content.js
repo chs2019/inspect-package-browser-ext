@@ -185,12 +185,12 @@ function createNpmDiv(name) {
   fetchDetails(name, desc_div);
 
   const linkToExt = document.createElement("a");
-  linkToExt.setAttribute("href", "https://github.com/chs2019");
+  linkToExt.setAttribute("href", "https://github.com/chs2019/inspect-package-browser-ext");
   linkToExt.setAttribute(
     "style",
     "font-size: 10px; color=var(--fgColor-muted); text-decoration: none; padding: 8px 0;"
   );
-  linkToExt.innerText = `An extension made by chs2019 ©2024`;
+  linkToExt.innerText = `An extension made with ❤️ by chs2019 ©2024`;
   div.appendChild(linkToExt);
 
   return div;
