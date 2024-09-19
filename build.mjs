@@ -4,7 +4,6 @@ builds chrome and firefox extensions in dist folder
 two different extensions are required because firefox and chrome manifests are incompatible (same manifest version, different schemes for the "background" key)
 */
 
-import { copyFile, globSync } from "node:fs";
 import { cp, glob, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chdir } from "node:process";
