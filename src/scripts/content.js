@@ -253,7 +253,7 @@ function createNpmDiv(name) {
     "style",
     "font-size: 10px; color=var(--fgColor-muted); text-decoration: none; padding: 8px 0;"
   );
-  linkToExt.innerText = `An extension made with ❤️ by chs2019 ©2024`;
+  linkToExt.innerText = `An extension made with ❤️ by chs2019`;
   div.appendChild(linkToExt);
 
   return div;
